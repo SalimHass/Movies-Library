@@ -30,12 +30,20 @@ function Movie(title, genre_ids, original_language, original_title, poster_path,
 }
 
 function moviesHomeHandler(req, res) {
-    let movies = [];
-    movieData.data.map(movie => {
-        let newMovie = new Movie(title, genre_ids, original_language, original_title, poster_path, video, vote_average, overview, release_date, vote_count, id, adult, backdrop_path, popularity, media_type)
-        movies.push(newMovie);
-        return res.status(200),send(movies.title, movies.poster_path, movies.overview)
+
+    let movies = movieData.data.map(movie => {
+        let newMovie = new Movie(movie.title, movie.genre_ids, movie.original_language,
+            movie.original_title, movie.poster_path, movie.video, movie.vote_average,
+            movie.overview, movie.release_date, movie.vote_count, movie.id, movie.adult, movie.backdrop_path, movie.popularity, movie.media_type);
+        return {
+            title : newMovie.title,
+            poster_path : newMovie.poster_path,
+            overview : newMovie.overview
+        };
+
+
     })
+    return res.status(200).send(movies)
 }
 
 function favoriteHandler(req, res) {
