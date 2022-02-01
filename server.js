@@ -12,12 +12,17 @@ app.use(cors());
 const movieData = require('./Movie Data/data.json');
 let url = `https://api.themoviedb.org/3/trending/all/week?api_key=${process.env.APIKEY}`;
 let search_url = `https://api.themoviedb.org/3/search/movie?api_key=${process.env.APIKEY}&language=en-US&query=spiderman`
-
+let topRatedUrl= `https://api.themoviedb.org/3/movie/top_rated?api_key=${process.env.APIKEY}`
+let upcomingUrl= `https://api.themoviedb.org/3/movie/upcoming?api_key=${process.env.APIKEY}`
 app.get('/', moviesHomeHandler);
 app.get('/favorite', favoriteHandler);
 app.get('/trending', trendingHandler);
 app.get('/search', searchHandler);
-app.get('*', notFoundHndler)
+app.get('/', moviesHomeHandler);
+app.get('/toprated', topRatedHandler);
+app.get('/upcoming', upcomingHandler);
+app.get('*', notFoundHndler);
+
 function Movie(title, genre_ids, original_language, original_title, poster_path, video, vote_average, overview, release_date, vote_count, id, adult, backdrop_path, popularity, media_type) {
     this.title = title;
     this.genre_ids = genre_ids;
@@ -60,8 +65,52 @@ function notFoundHndler(req, res) {
     return res.status(404).send("page not found")
 }
 
+
+function topRatedHandler(req, res) {
+    axios.get(topRatedUrl)
+    .then((result)=> {
+        let movies = result.data.results.map(movie => {
+            let newMovie = new Movie(movie.title, movie.genre_ids, movie.original_language,
+                movie.original_title, movie.poster_path, movie.video, movie.vote_average,
+                movie.overview, movie.release_date, movie.vote_count, movie.id, movie.adult, movie.backdrop_path, movie.popularity, movie.media_type);
+            return {
+                id: newMovie.id,
+                title : newMovie.title,
+                release_date: newMovie.release_date,
+                poster_path : newMovie.poster_path,
+            };
+    
+    
+        })
+        return res.status(200).send(movies)
+
+   }).catch((err)=>{
+
+    })
+}
+function upcomingHandler(req, res) {
+    axios.get(upcomingUrl)
+    .then((result)=> {
+        let movies = result.data.results.map(movie => {
+            let newMovie = new Movie(movie.title, movie.genre_ids, movie.original_language,
+                movie.original_title, movie.poster_path, movie.video, movie.vote_average,
+                movie.overview, movie.release_date, movie.vote_count, movie.id, movie.adult, movie.backdrop_path, movie.popularity, movie.media_type);
+            return {
+                id: newMovie.id,
+                title : newMovie.title,
+                release_date: newMovie.release_date,
+                poster_path : newMovie.poster_path,
+            };
+    
+    
+        })
+        return res.status(200).send(movies)
+
+   }).catch((err)=>{
+
+    })
+}
 function trendingHandler(req,res){
-    console.log(url)
     axios.get(url)
     .then((result)=> {
         let movies = result.data.results.map(movie => {
