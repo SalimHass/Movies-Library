@@ -1,15 +1,22 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const axios = require('axios');
+
+const PORT = process.env.PORT;
 
 const app = express();
 
 app.use(cors());
 
 const movieData = require('./Movie Data/data.json');
-
+let url = `https://api.themoviedb.org/3/trending/all/week?api_key=${process.env.APIKEY}`;
+let search_url = `https://api.themoviedb.org/3/search/movie?api_key=${process.env.APIKEY}&language=en-US&query=spiderman`
 
 app.get('/', moviesHomeHandler);
 app.get('/favorite', favoriteHandler);
+app.get('/trending', trendingHandler);
+app.get('/search', searchHandler);
 app.get('*', notFoundHndler)
 function Movie(title, genre_ids, original_language, original_title, poster_path, video, vote_average, overview, release_date, vote_count, id, adult, backdrop_path, popularity, media_type) {
     this.title = title;
@@ -53,7 +60,54 @@ function notFoundHndler(req, res) {
     return res.status(404).send("page not found")
 }
 
+function trendingHandler(req,res){
+    console.log(url)
+    axios.get(url)
+    .then((result)=> {
+        let movies = result.data.results.map(movie => {
+            let newMovie = new Movie(movie.title, movie.genre_ids, movie.original_language,
+                movie.original_title, movie.poster_path, movie.video, movie.vote_average,
+                movie.overview, movie.release_date, movie.vote_count, movie.id, movie.adult, movie.backdrop_path, movie.popularity, movie.media_type);
+            return {
+                id: newMovie.id,
+                title : newMovie.title,
+                release_date: newMovie.release_date,
+                poster_path : newMovie.poster_path,
+                overview : newMovie.overview
+            };
+    
+    
+        })
+        return res.status(200).send(movies)
+
+   }).catch((err)=>{
+
+    })
+}
+function searchHandler(req,res){
+    console.log(search_url)
+    axios.get(search_url)
+    .then((result)=> {
+        let movies = result.data.results.map(movie => {
+            let newMovie = new Movie(movie.title, movie.genre_ids, movie.original_language,
+                movie.original_title, movie.poster_path, movie.video, movie.vote_average,
+                movie.overview, movie.release_date, movie.vote_count, movie.id, movie.adult, movie.backdrop_path, movie.popularity, movie.media_type);
+            return {
+                id: newMovie.id,
+                title : newMovie.title,
+                release_date: newMovie.release_date,
+                poster_path : newMovie.poster_path,
+                overview : newMovie.overview
+            };
+    
+    
+        })
+        return res.status(200).send(movies)
+
+   }).catch((err)=>{
+
+    })
+}
 
 
-
-app.listen(3000);
+app.listen(PORT);
