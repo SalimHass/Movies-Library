@@ -8,6 +8,7 @@ const client = new pg.Client(process.env.DATABASE_URL);
 const PORT = process.env.PORT;
 
 const app = express();
+app.use(express.json());
 
 app.use(cors());
 
@@ -23,7 +24,7 @@ app.get('/search', searchHandler);
 app.get('/', moviesHomeHandler);
 app.get('/toprated', topRatedHandler);
 app.get('/upcoming', upcomingHandler);
-app.post('/addMovie ', addMovieHandler);
+app.post('/addMovie', addMovieHandler);
 app.get('/getMovies', getMoviesHandler);
 
 app.get('*', notFoundHndler);
@@ -164,7 +165,6 @@ function searchHandler(req, res) {
 }
 function addMovieHandler(req, res) {
     const movie = req.body;
-    //   console.log(recipe)
     let sql = `INSERT INTO movie(title,overview,release_date,image,comment) VALUES ($1,$2,$3,$4,$5) RETURNING *;`
     let values = [movie.title, movie.overview, movie.release_date, movie.image, movie.comment];
     client.query(sql, values).then(data => {
