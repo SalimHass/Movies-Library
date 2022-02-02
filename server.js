@@ -188,7 +188,7 @@ function getMoviesHandler(req, res) {
 
 
 client.connect().then(()=>{
-    server.listen(PORT,()=>{
+    app.listen(PORT,()=>{
         console.log(`listining to port ${PORT}`)
     })
 })
