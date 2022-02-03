@@ -26,6 +26,9 @@ app.get('/toprated', topRatedHandler);
 app.get('/upcoming', upcomingHandler);
 app.post('/addMovie', addMovieHandler);
 app.get('/getMovies', getMoviesHandler);
+app.put('/UPDATE/:id', updateMovieHandler);
+app.delete('/DELETE/:id', deleteMovieHandler);
+app.get('/getMovie/:id', getMovieHandler);
 
 app.get('*', notFoundHndler);
 
@@ -72,6 +75,7 @@ function notFoundHndler(req, res) {
 }
 
 
+
 function topRatedHandler(req, res) {
     axios.get(topRatedUrl)
         .then((result) => {
@@ -94,6 +98,7 @@ function topRatedHandler(req, res) {
 
         })
 }
+
 function upcomingHandler(req, res) {
     axios.get(upcomingUrl)
         .then((result) => {
@@ -176,19 +181,60 @@ function addMovieHandler(req, res) {
 
 function getMoviesHandler(req, res) {
     let sql = `SELECT * FROM movie;`;
-    client.query(sql).then(data=>{
-       res.status(200).json(data.rows);
-    }).catch(error=>{
-        errorHandler(error,req,res)
+    client.query(sql).then(data => {
+        res.status(200).json(data.rows);
+    }).catch(error => {
+        errorHandler(error, req, res)
+    });
+}
+
+function getMovieHandler(req, res) {
+    const id = req.params.id;
+    let sql = `SELECT * FROM movie WHERE id=${id};`;
+    client.query(sql).then(data => {
+        res.status(200).json(data.rows);
+    }).catch(error => {
+        errorHandler(error, req, res)
+    });
+}
+
+function updateMovieHandler(req, res) {
+
+    const id = req.params.id;
+    const movie = req.body;
+    const sql = `UPDATE movie SET title =$1, overview = $2, release_date=$3, image=$4, comment =$5 WHERE id=$6 RETURNING *;`;
+    let values = [movie.title, movie.overview, movie.release_date, movie.image, movie.comment, id];
+    client.query(sql, values).then(data => {
+        res.status(200).json(data.rows);
+        // res.status(204)
+    }).catch(error => {
+        errorHandler(error, req, res)
+    });
+
+}
+
+function deleteMovieHandler(req, res) {
+    const id = req.params.id;
+    const sql = `DELETE FROM movie WHERE id=${id};`
+    client.query(sql).then(data => {
+        res.status(204).json({});
+    }).catch(error => {
+        errorHandler(error, req, res)
     });
 }
 
 
+function errorHandler(error, req, res) {
+    const err = {
+        status: 500,
+        messgae: error
+    }
+    res.status(500).send(err);
+}
 
 
-
-client.connect().then(()=>{
-    app.listen(PORT,()=>{
+client.connect().then(() => {
+    app.listen(PORT, () => {
         console.log(`listining to port ${PORT}`)
     })
 })
