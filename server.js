@@ -75,6 +75,7 @@ function notFoundHndler(req, res) {
 }
 
 
+
 function topRatedHandler(req, res) {
     axios.get(topRatedUrl)
         .then((result) => {
@@ -97,6 +98,7 @@ function topRatedHandler(req, res) {
 
         })
 }
+
 function upcomingHandler(req, res) {
     axios.get(upcomingUrl)
         .then((result) => {
@@ -201,7 +203,7 @@ function updateMovieHandler(req, res) {
     const id = req.params.id;
     const movie = req.body;
     const sql = `UPDATE movie SET title =$1, overview = $2, release_date=$3, image=$4, comment =$5 WHERE id=$6 RETURNING *;`;
-    let values = [movie.title, movie.overview, movie.release_date, movie.image, movie.comment,id];
+    let values = [movie.title, movie.overview, movie.release_date, movie.image, movie.comment, id];
     client.query(sql, values).then(data => {
         res.status(200).json(data.rows);
         // res.status(204)
@@ -222,13 +224,13 @@ function deleteMovieHandler(req, res) {
 }
 
 
-function errorHandler (error,req,res){
+function errorHandler(error, req, res) {
     const err = {
-         status : 500,
-         messgae : error
-     }
-     res.status(500).send(err);
- }
+        status: 500,
+        messgae: error
+    }
+    res.status(500).send(err);
+}
 
 
 client.connect().then(() => {
